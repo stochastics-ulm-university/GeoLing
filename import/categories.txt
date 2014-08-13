@@ -1,0 +1,3 @@
+parent_name:names of children (separated by ;)
+all questions:questions about food;questions about other topics
+questions about other topics:questions about colours;questions about animals

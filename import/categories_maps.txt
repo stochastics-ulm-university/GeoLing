@@ -1,0 +1,4 @@
+category_name:names of maps that belong to this category (separated by ;)
+questions about food:What is your favourite flavour of ice-cream?;What is your favourite food?
+questions about colours:What is your favourite colour?
+questions about animals:What is your favourite animal?

@@ -1,0 +1,37 @@
+location_name1;location_name2;distance
+Berlin;München;783.6303710938
+Berlin;Frankfurt am Main;475.830078125
+Berlin;Hamburg;445.9838867188
+Berlin;Dortmund;779.6325683594
+Berlin;Ulm;393.4631347656
+Berlin;Augsburg;166.2902832031
+Berlin;Salzburg;129.2724609375
+Berlin;Wien;522.4609375
+München;Frankfurt am Main;617.0349121094
+München;Hamburg;648.9562988281
+München;Dortmund;691.7724609375
+München;Ulm;391.1437988281
+München;Augsburg;578.6437988281
+München;Salzburg;352.294921875
+München;Wien;806.5490722656
+Frankfurt am Main;Hamburg;809.2956542969
+Frankfurt am Main;Dortmund;521.240234375
+Frankfurt am Main;Ulm;480.1330566406
+Frankfurt am Main;Augsburg;53.2836914063
+Frankfurt am Main;Salzburg;282.6843261719
+Frankfurt am Main;Wien;352.8442382813
+Hamburg;Dortmund;552.3071289063
+Hamburg;Ulm;168.9453125
+Hamburg;Augsburg;839.6606445313
+Hamburg;Salzburg;268.8903808594
+Hamburg;Wien;146.7590332031
+Dortmund;Ulm;47.3022460938
+Dortmund;Augsburg;150.9094238281
+Dortmund;Salzburg;701.2329101563
+Dortmund;Wien;136.3220214844
+Ulm;Augsburg;64.6362304688
+Ulm;Salzburg;603.759765625
+Ulm;Wien;439.5141601563
+Augsburg;Salzburg;797.0275878906
+Augsburg;Wien;957.7026367188
+Salzburg;Wien;793.0603027344

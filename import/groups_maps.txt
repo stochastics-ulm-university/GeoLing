@@ -1,0 +1,3 @@
+group_name:names of maps that belong to this group (separated by ;)
+group of all maps:What is your favourite flavour of ice-cream?;What is your favourite animal?;What is your favourite food?;What is your favourite colour?
+group of maps about food:What is your favourite flavour of ice-cream?;What is your favourite food?
