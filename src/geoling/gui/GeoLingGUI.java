@@ -5,12 +5,14 @@ import geoling.config.Settings;
 import geoling.gui.management_dialog.DatabaseManagementDialog;
 import geoling.gui.util.ExceptionHandler;
 import geoling.gui.util.JNameTree;
+import geoling.gui.util.TeeStream;
 import geoling.gui.vendor.MultiLineCellRenderer;
 import geoling.gui.vendor.MultiLineTable;
 import geoling.models.*;
 import geoling.sql.SQLReader;
 import geoling.util.Directory;
 import geoling.util.ModelHelper;
+import geoling.util.vendor.HumaneStringComparator;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -19,11 +21,13 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.ResourceBundle;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Locale;
@@ -147,6 +151,23 @@ public class GeoLingGUI extends JFrame {
 
 			public void run() {
 				try {
+					// duplicate standard output and standard error streams to log files,
+					// if the log file directory "logs" is present
+					if (new File("logs").isDirectory()) {
+						try {
+							String now = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss_SSS").format(new Date());
+							String logFileName = "logs/log_"+now+".log";
+							PrintStream logOut = new PrintStream(new FileOutputStream(new File(logFileName), true));
+
+							System.setOut(new TeeStream(System.out, logOut));
+							System.setErr(new TeeStream(System.err, logOut));
+
+							System.out.println("GeoLing is starting, set up log file '"+logFileName+"'.");
+						} catch (IOException e) {
+							// ignore if something went wrong
+						}
+					}
+
 					Settings.createDirectory();
 					Settings.load();
 
@@ -184,7 +205,7 @@ public class GeoLingGUI extends JFrame {
 						LANGUAGE = defaultLocale;
 					} else {
 						Locale answer = (Locale)JOptionPane.showInputDialog(
-								new JFrame(), "Select your language:", "Language",
+								null, "Select your language:", "Language",
 								JOptionPane.QUESTION_MESSAGE, null,
 								foundLocales.toArray(), (englishLocale != null) ? englishLocale : foundLocales.get(0));
 						if (answer == null) {
@@ -230,12 +251,14 @@ public class GeoLingGUI extends JFrame {
 								}
 							}
 						}
+						Collections.sort(databaseList, new HumaneStringComparator());
+
 						ArrayList<String> databaseAndOperationsList = new ArrayList<String>(databaseList);
 						databaseAndOperationsList.add(rb.getString("newDatabase_databaseAndOperationsList"));
 						databaseAndOperationsList.add(rb.getString("editDatabase_databaseAndOperationsList"));
 
 						String answer = (String)JOptionPane.showInputDialog(
-								new JFrame(), rb.getString("text_dialogChooseDB"), rb.getString("title_dialogChooseDB"),
+								null, rb.getString("text_dialogChooseDB"), rb.getString("title_dialogChooseDB"),
 								JOptionPane.QUESTION_MESSAGE, null,
 								databaseAndOperationsList.toArray(), databaseAndOperationsList.get(0));
 						if (answer==null) {
@@ -273,13 +296,13 @@ public class GeoLingGUI extends JFrame {
 									String dbPass = jTFpassword.getText();
 
 									if ((dbName.length()==0) || (dbHost.length()==0) || (dbUser.length()==0)) {
-										JOptionPane.showMessageDialog(new JFrame(), rb.getString("text_popupMissingParametersMySQL"), rb.getString("title_popupMissingParametersMySQL"), JOptionPane.ERROR_MESSAGE);
+										JOptionPane.showMessageDialog(null, rb.getString("text_popupMissingParametersMySQL"), rb.getString("title_popupMissingParametersMySQL"), JOptionPane.ERROR_MESSAGE);
 										System.exit(1);
 									}
 									else {
 										String databaseIdentifier = getDatabaseIdentifier(dbName);
 										while (databaseList.contains(databaseIdentifier)) {
-											JOptionPane.showMessageDialog(new JFrame(), String.format(rb.getString("format_popupDuplicateIdentifier"), databaseIdentifier), rb.getString("title_popupDuplicateIdentifier"), JOptionPane.WARNING_MESSAGE);
+											JOptionPane.showMessageDialog(null, String.format(rb.getString("format_popupDuplicateIdentifier"), databaseIdentifier), rb.getString("title_popupDuplicateIdentifier"), JOptionPane.WARNING_MESSAGE);
 											databaseIdentifier = databaseIdentifier + "_NEW";
 										}
 										
@@ -302,7 +325,7 @@ public class GeoLingGUI extends JFrame {
 											}
 											catch (SQLException e) {
 												e.printStackTrace();
-												JOptionPane.showMessageDialog(new JFrame(), rb.getString("text_popupCreationFailedMySQL")+(e.getMessage() != null ? e.getMessage() : e), rb.getString("title_popupCreationFailedMySQL"), JOptionPane.ERROR_MESSAGE);
+												JOptionPane.showMessageDialog(null, rb.getString("text_popupCreationFailedMySQL")+(e.getMessage() != null ? e.getMessage() : e), rb.getString("title_popupCreationFailedMySQL"), JOptionPane.ERROR_MESSAGE);
 												System.exit(1);
 											}
 
@@ -318,13 +341,13 @@ public class GeoLingGUI extends JFrame {
 											}
 											catch (SQLException | IOException e) {
 												e.printStackTrace();
-												JOptionPane.showMessageDialog(new JFrame(), rb.getString("text_popupSchemaFailedMySQL")+(e.getMessage() != null ? e.getMessage() : e), rb.getString("title_popupSchemaFailedMySQL"), JOptionPane.ERROR_MESSAGE);
+												JOptionPane.showMessageDialog(null, rb.getString("text_popupSchemaFailedMySQL")+(e.getMessage() != null ? e.getMessage() : e), rb.getString("title_popupSchemaFailedMySQL"), JOptionPane.ERROR_MESSAGE);
 												System.exit(1);
 											}
 
 										}
 										catch (ClassNotFoundException e) {
-											JOptionPane.showMessageDialog(new JFrame(), rb.getString("text_driverFailedMySQL"), rb.getString("title_driverFailedMySQL"), JOptionPane.ERROR_MESSAGE);
+											JOptionPane.showMessageDialog(null, rb.getString("text_driverFailedMySQL"), rb.getString("title_driverFailedMySQL"), JOptionPane.ERROR_MESSAGE);
 											System.exit(1);
 										}
 										
@@ -345,8 +368,9 @@ public class GeoLingGUI extends JFrame {
 										JFileChooser jfc = new JFileChooser();
 										jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 										jfc.setDialogTitle(rb.getString("title_jfcOutputfolder"));
-										jfc.showOpenDialog(new JFrame());
-										writer.write("OUTPUTFOLDER = " + jfc.getSelectedFile().getAbsolutePath().replace("\\", "/"));
+										if (jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+											writer.write("OUTPUTFOLDER = " + jfc.getSelectedFile().getAbsolutePath().replace("\\", "/"));
+										}
 										writer.flush();
 										writer.close();
 
@@ -359,13 +383,12 @@ public class GeoLingGUI extends JFrame {
 								// SQLite
 								else {
 									// get path of file containing the (new) SQLite database
-									JFileChooser fileChooserDB = new JFileChooser();
+									JFileChooser fileChooserDB = new JFileChooser("databases/");
 									fileChooserDB.setDialogTitle(rb.getString("title_jfcFileSQLite"));
-									fileChooserDB.showSaveDialog(new JFrame());
-									File selectedFile = fileChooserDB.getSelectedFile();
-									if (selectedFile==null) {
+									if (fileChooserDB.showSaveDialog(null) != JFileChooser.APPROVE_OPTION) {
 										System.exit(1);
 									}
+									File selectedFile = fileChooserDB.getSelectedFile();
 									boolean sqliteExists;
 									if (selectedFile.exists()) {
 										sqliteExists = true;
@@ -375,11 +398,16 @@ public class GeoLingGUI extends JFrame {
 										selectedFile.createNewFile();
 									}
 									String filename = selectedFile.getAbsolutePath().replace("\\", "/");
-									String filenamePure = filename.substring(filename.lastIndexOf("/"), filename.lastIndexOf("."));
+									int filenameStart = filename.lastIndexOf("/")+1;
+									int extensionStart = filename.lastIndexOf(".");
+									if (extensionStart <= filenameStart) {
+										extensionStart = filename.length();
+									}
+									String filenamePure = filename.substring(filenameStart, extensionStart);
 									String databaseIdentifier = getDatabaseIdentifier(filenamePure);
 									while (databaseList.contains(databaseIdentifier)) {
-										JOptionPane.showMessageDialog(new JFrame(),  String.format("format_popupDuplicateIdentifier", databaseIdentifier), rb.getString("title_popupDuplicateIdentifier"), JOptionPane.WARNING_MESSAGE);
 										databaseIdentifier = databaseIdentifier + "_NEW";
+										JOptionPane.showMessageDialog(null, String.format(rb.getString("format_popupDuplicateIdentifier"), databaseIdentifier), rb.getString("title_popupDuplicateIdentifier"), JOptionPane.WARNING_MESSAGE);
 									}
 									
 									DATABASE_IDENTIFIER = databaseIdentifier;
@@ -401,14 +429,14 @@ public class GeoLingGUI extends JFrame {
 											}
 											catch (SQLException | IOException e) {
 												e.printStackTrace();
-												JOptionPane.showMessageDialog(new JFrame(), rb.getString("text_popupSchemaFailedSQLite")+(e.getMessage() != null ? e.getMessage() : e), rb.getString("title_popupSchemaFailedSQLite"), JOptionPane.ERROR_MESSAGE);
+												JOptionPane.showMessageDialog(null, rb.getString("text_popupSchemaFailedSQLite")+(e.getMessage() != null ? e.getMessage() : e), rb.getString("title_popupSchemaFailedSQLite"), JOptionPane.ERROR_MESSAGE);
 												System.exit(1);
 											}
 
 										}
 										catch (ClassNotFoundException e) {
 											e.printStackTrace();
-											JOptionPane.showMessageDialog(new JFrame(), rb.getString("text_driverFailedSQLite")+(e.getMessage() != null ? e.getMessage() : e), rb.getString("title_driverFailedSQLite"), JOptionPane.ERROR_MESSAGE);
+											JOptionPane.showMessageDialog(null, rb.getString("text_driverFailedSQLite")+(e.getMessage() != null ? e.getMessage() : e), rb.getString("title_driverFailedSQLite"), JOptionPane.ERROR_MESSAGE);
 											System.exit(1);
 										}
 									}
@@ -425,8 +453,9 @@ public class GeoLingGUI extends JFrame {
 									JFileChooser jfc = new JFileChooser();
 									jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 									jfc.setDialogTitle(rb.getString("title_jfcOutputfolder"));
-									jfc.showOpenDialog(new JFrame());
-									writer.write("OUTPUTFOLDER = " + jfc.getSelectedFile().getAbsolutePath().replace("\\", "/"));
+									if (jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+										writer.write("OUTPUTFOLDER = " + jfc.getSelectedFile().getAbsolutePath().replace("\\", "/"));
+									}
 									writer.flush();
 									writer.close();
 
@@ -441,7 +470,7 @@ public class GeoLingGUI extends JFrame {
 							// ask which database shall be edited
 							else if (answer.equals(rb.getString("editDatabase_databaseAndOperationsList"))) {
 								String answerEditDatabase = (String)JOptionPane.showInputDialog(
-										new JFrame(), rb.getString("text_dialogChooseDB"), rb.getString("title_dialogChooseDB"),
+										null, rb.getString("text_dialogChooseDB"), rb.getString("title_dialogChooseDB"),
 										JOptionPane.QUESTION_MESSAGE, null,
 										databaseList.toArray(), databaseList.get(0));
 								DATABASE_IDENTIFIER = answerEditDatabase;
@@ -469,7 +498,7 @@ public class GeoLingGUI extends JFrame {
 					frame.setIconImages(Arrays.asList(new Image[] { icon16.getImage(), icon32.getImage(), icon64.getImage() }));
 				} catch (IOException e) {
 					e.printStackTrace();
-					JOptionPane.showMessageDialog(new JFrame(), "There occured an IOException while reading/writing files: " + (e.getMessage() != null ? e.getMessage() : e), "IOException occured", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, "There occured an IOException while reading/writing files: " + (e.getMessage() != null ? e.getMessage() : e), "IOException occured", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});
@@ -502,6 +531,9 @@ public class GeoLingGUI extends JFrame {
 
 		// get path of standard output folder for exports
 		outputfolder = databaseSettings.getProperty("OUTPUTFOLDER");
+		if (outputfolder == null) {
+			outputfolder = System.getProperty("user.home");
+		}
 
 
 		// now setup GUI
@@ -841,7 +873,7 @@ public class GeoLingGUI extends JFrame {
 		}
 		else {
 			if (type.equals("SQLite")) {
-				String[] keys = new String[] {"FILENAME", "OUTPUTFOLDER"};
+				String[] keys = new String[] {"FILENAME"};
 				for (String key : keys) {
 					if (!properties.containsKey(key)) {
 						System.err.println("The property file " + path + " must contain the key " + key + "!");
@@ -850,7 +882,7 @@ public class GeoLingGUI extends JFrame {
 				}
 			}
 			else if (type.equals("MySQL")) {
-				String[] keys = new String[] {"DBNAME", "DBHOST", "DBUSER", "DBPASSWORD", "OUTPUTFOLDER"};
+				String[] keys = new String[] {"DBNAME", "DBHOST", "DBUSER", "DBPASSWORD"};
 				for (String key : keys) {
 					if (!properties.containsKey(key)) {
 						System.err.println("The property file " + path + " must contain the key " + key + "!");

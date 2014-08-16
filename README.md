@@ -1,8 +1,6 @@
 GeoLing - a statistical software package for geolinguistic data
 ===============================================================
 
-Version 1.0 RC1 (published 2014-08-13)
-
 
 What is GeoLing and what does it do?
 ------------------------------------
