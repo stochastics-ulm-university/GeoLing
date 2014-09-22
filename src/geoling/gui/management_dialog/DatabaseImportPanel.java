@@ -3,6 +3,8 @@ package geoling.gui.management_dialog;
 import geoling.config.Database;
 import geoling.gui.GeoLingGUI;
 import geoling.gui.util.StatusLabel;
+import geoling.locations.SimilarCoordinatesAggregation;
+import geoling.locations.util.AggregatedLocation;
 import geoling.models.*;
 import geoling.sql.SQLReader;
 import geoling.util.Directory;
@@ -599,7 +601,7 @@ public class DatabaseImportPanel {
 								catch (IllegalArgumentException | IOException e) {
 									statusLabelLocations.changeStatus(4);
 									e.printStackTrace();
-									JOptionPane.showMessageDialog(panel, rb.getString("text_popupErrorImportFiles"), rb.getString("title_popupErrorImportFiles"), JOptionPane.ERROR_MESSAGE);
+									JOptionPane.showMessageDialog(panel, rb.getString("text_popupErrorImportFiles")+(e.getMessage() != null ? e.getMessage() : e), rb.getString("title_popupErrorImportFiles"), JOptionPane.ERROR_MESSAGE);
 								}
 							}
 							if (killThread==true) {
@@ -615,7 +617,7 @@ public class DatabaseImportPanel {
 								catch (IllegalArgumentException | IOException e) {
 									statusLabelMaps.changeStatus(4);
 									e.printStackTrace();
-									JOptionPane.showMessageDialog(panel, rb.getString("text_popupErrorImportFiles"), rb.getString("title_popupErrorImportFiles"), JOptionPane.ERROR_MESSAGE);
+									JOptionPane.showMessageDialog(panel, rb.getString("text_popupErrorImportFiles")+(e.getMessage() != null ? e.getMessage() : e), rb.getString("title_popupErrorImportFiles"), JOptionPane.ERROR_MESSAGE);
 								}
 							}
 							if (killThread==true) {
@@ -631,7 +633,7 @@ public class DatabaseImportPanel {
 								catch (IllegalArgumentException | IOException e) {
 									statusLabelInformantAnswers.changeStatus(4);
 									e.printStackTrace();
-									JOptionPane.showMessageDialog(panel, rb.getString("text_popupErrorImportFiles"), rb.getString("title_popupErrorImportFiles"), JOptionPane.ERROR_MESSAGE);
+									JOptionPane.showMessageDialog(panel, rb.getString("text_popupErrorImportFiles")+(e.getMessage() != null ? e.getMessage() : e), rb.getString("title_popupErrorImportFiles"), JOptionPane.ERROR_MESSAGE);
 								}
 							}
 							if (killThread==true) {
@@ -647,7 +649,7 @@ public class DatabaseImportPanel {
 								catch (IllegalArgumentException | IOException e) {
 									statusLabelBorderCoordinates.changeStatus(4);
 									e.printStackTrace();
-									JOptionPane.showMessageDialog(panel, rb.getString("text_popupErrorImportFiles"), rb.getString("title_popupErrorImportFiles"), JOptionPane.ERROR_MESSAGE);
+									JOptionPane.showMessageDialog(panel, rb.getString("text_popupErrorImportFiles")+(e.getMessage() != null ? e.getMessage() : e), rb.getString("title_popupErrorImportFiles"), JOptionPane.ERROR_MESSAGE);
 								}
 							}
 							if (killThread==true) {
@@ -663,7 +665,7 @@ public class DatabaseImportPanel {
 								catch (IllegalArgumentException | IOException e) {
 									statusLabelGroups.changeStatus(4);
 									e.printStackTrace();
-									JOptionPane.showMessageDialog(panel, rb.getString("text_popupErrorImportFiles"), rb.getString("title_popupErrorImportFiles"), JOptionPane.ERROR_MESSAGE);
+									JOptionPane.showMessageDialog(panel, rb.getString("text_popupErrorImportFiles")+(e.getMessage() != null ? e.getMessage() : e), rb.getString("title_popupErrorImportFiles"), JOptionPane.ERROR_MESSAGE);
 								}
 							}
 							if (killThread==true) {
@@ -680,7 +682,7 @@ public class DatabaseImportPanel {
 								catch (IllegalArgumentException | IOException e) {
 									statusLabelCategories.changeStatus(4);
 									e.printStackTrace();
-									JOptionPane.showMessageDialog(panel, rb.getString("text_popupErrorImportFiles"), rb.getString("title_popupErrorImportFiles"), JOptionPane.ERROR_MESSAGE);
+									JOptionPane.showMessageDialog(panel, rb.getString("text_popupErrorImportFiles")+(e.getMessage() != null ? e.getMessage() : e), rb.getString("title_popupErrorImportFiles"), JOptionPane.ERROR_MESSAGE);
 								}
 							}
 							if (killThread==true) {
@@ -696,7 +698,7 @@ public class DatabaseImportPanel {
 								catch (IllegalArgumentException | IOException e) {
 									statusLabelPrepareMapping.changeStatus(4);
 									e.printStackTrace();
-									JOptionPane.showMessageDialog(panel, rb.getString("text_popupErrorImportFiles"), rb.getString("title_popupErrorImportFiles"), JOptionPane.ERROR_MESSAGE);
+									JOptionPane.showMessageDialog(panel, rb.getString("text_popupErrorImportFiles")+(e.getMessage() != null ? e.getMessage() : e), rb.getString("title_popupErrorImportFiles"), JOptionPane.ERROR_MESSAGE);
 								}
 							}
 							if (killThread==true) {
@@ -712,7 +714,7 @@ public class DatabaseImportPanel {
 								catch (IllegalArgumentException | IOException e) {
 									statusLabelReadMapping.changeStatus(4);
 									e.printStackTrace();
-									JOptionPane.showMessageDialog(panel, rb.getString("text_popupErrorImportFiles"), rb.getString("title_popupErrorImportFiles"), JOptionPane.ERROR_MESSAGE);
+									JOptionPane.showMessageDialog(panel, rb.getString("text_popupErrorImportFiles")+(e.getMessage() != null ? e.getMessage() : e), rb.getString("title_popupErrorImportFiles"), JOptionPane.ERROR_MESSAGE);
 								}
 							}
 							if (killThread==true) {
@@ -728,7 +730,7 @@ public class DatabaseImportPanel {
 								catch (IllegalArgumentException | IOException e) {
 									statusLabelDistances.changeStatus(4);
 									e.printStackTrace();
-									JOptionPane.showMessageDialog(panel, rb.getString("text_popupErrorImportFiles"), rb.getString("title_popupErrorImportFiles"), JOptionPane.ERROR_MESSAGE);
+									JOptionPane.showMessageDialog(panel, rb.getString("text_popupErrorImportFiles")+(e.getMessage() != null ? e.getMessage() : e), rb.getString("title_popupErrorImportFiles"), JOptionPane.ERROR_MESSAGE);
 								}
 							}
 
@@ -768,7 +770,7 @@ public class DatabaseImportPanel {
 							} catch (IOException | SQLException e) {
 								statusLabelImportDump.changeStatus(4);
 								e.printStackTrace();
-								JOptionPane.showMessageDialog(panel, rb.getString("text_popupErrorImportDump"), rb.getString("title_popupErrorImportDump"), JOptionPane.ERROR_MESSAGE);
+								JOptionPane.showMessageDialog(panel, rb.getString("text_popupErrorImportDump")+(e.getMessage() != null ? e.getMessage() : e), rb.getString("title_popupErrorImportDump"), JOptionPane.ERROR_MESSAGE);
 							}
 
 
@@ -801,7 +803,7 @@ public class DatabaseImportPanel {
 					JOptionPane.showMessageDialog(panel, rb.getString("text_popupSuccessRecreateTables"), rb.getString("title_popupSuccessRecreateTables"), JOptionPane.INFORMATION_MESSAGE);
 				}
 				catch (SQLException | IOException e) {
-					JOptionPane.showMessageDialog(panel, rb.getString("text_popupErrorRecreateTables"), rb.getString("title_popupErrorRecreateTables"), JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(panel, rb.getString("text_popupErrorRecreateTables")+(e.getMessage() != null ? e.getMessage() : e), rb.getString("title_popupErrorRecreateTables"), JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});
@@ -843,7 +845,7 @@ public class DatabaseImportPanel {
 			geographicDistance.saveIt();
 		}
 		if (geographicDistances.size()>1) {
-			throw new IllegalArgumentException("More than one geographical distance in table distances was found!");
+			throw new IllegalArgumentException("More than one geographical distance in table 'distances' found!");
 		}
 	}
 
@@ -908,6 +910,21 @@ public class DatabaseImportPanel {
 
 		}
 
+		// check whether useLocationAggregation is required, i.e., there are several locations with the same
+		// geographical coordinates
+		SimilarCoordinatesAggregation aggregator = new SimilarCoordinatesAggregation();
+		List<Location> locations = Location.findAll();
+		List<AggregatedLocation> aggregatedLocations = aggregator.getAggregatedLocations(locations);
+		boolean oldValue = ConfigurationOption.getOption("useLocationAggregation", false);
+		if (locations.size() > aggregatedLocations.size()) {
+			if (!oldValue) {
+				ConfigurationOption.setOption("useLocationAggregation", true);
+			}
+		} else {
+			if (oldValue) {
+				ConfigurationOption.setOption("useLocationAggregation", false);
+			}
+		}
 	}
 
 	/**
@@ -979,12 +996,12 @@ public class DatabaseImportPanel {
 	 * @param filename the path of the .csv file
 	 */
 	private static void readInformantAnswers(String filename) throws IllegalArgumentException, IOException {
-		// check if all necessary tables are non-empty
+		// check if necessary tables are empty
 		if (Location.count()==0) {
-			throw new IllegalArgumentException("Table Locations must not be empty!");
+			throw new IllegalArgumentException("Table 'locations' must not be empty!");
 		}
 		if (Map.count()==0) {
-			throw new IllegalArgumentException("Table Maps must not be empty!");
+			throw new IllegalArgumentException("Table 'maps' must not be empty!");
 		}
 		int requiredColumns = 3;
 
@@ -1018,7 +1035,7 @@ public class DatabaseImportPanel {
 				}
 				else {
 					if (maps.size()==0) {
-						throw new IllegalArgumentException("Name of map is not contained in table maps: " + header[3+m]);
+						throw new IllegalArgumentException("Name of map is not contained in table 'maps': " + header[3+m]);
 					}
 					if (maps.size()>1) {
 						throw new IllegalArgumentException("Map name is not unique: " + header[3+m]);
@@ -1027,7 +1044,7 @@ public class DatabaseImportPanel {
 	
 			}
 			if (nrMaps==0) {
-				throw new IllegalArgumentException("At least answers for one map must be given.");
+				throw new IllegalArgumentException("At least one answer must be given for a map.");
 			}
 	
 			// look for optional tags and get their names
@@ -1068,7 +1085,7 @@ public class DatabaseImportPanel {
 				// get id of location and check if location is consistent
 				LazyList<Location> locations = Location.find("name = ?", split[1]);
 				if (locations.size()==0) {
-					throw new IllegalArgumentException("Name of location is not contained in table locations: " + split[1]);
+					throw new IllegalArgumentException("Name of location is not contained in table 'locations': " + split[1]);
 				}
 				if (locations.size()>1) {
 					throw new IllegalArgumentException("Location name is not unique: " + split[1]);
@@ -1250,7 +1267,7 @@ public class DatabaseImportPanel {
 					}
 					else {
 						if (maps.size()==0) {
-							throw new IllegalArgumentException("Name of map is not contained in table maps: " + mapNames[m]);
+							throw new IllegalArgumentException("Name of map is not contained in table 'maps': " + mapNames[m]);
 						}
 						if (maps.size()>0) {
 							throw new IllegalArgumentException("Map name is not unique: " + mapNames[m]);
@@ -1324,7 +1341,7 @@ public class DatabaseImportPanel {
 				}
 				else {
 					if (parents.size()==0) {
-						throw new IllegalArgumentException("Name of category is not contained in table categories: " + split[0]);
+						throw new IllegalArgumentException("Name of category is not contained in table 'categories': " + split[0]);
 					}
 					if (parents.size()>0) {
 						throw new IllegalArgumentException("Category name is not unique: " + split[0]);
@@ -1380,7 +1397,7 @@ public class DatabaseImportPanel {
 				}
 				else {
 					if (categories.size()==0) {
-						throw new IllegalArgumentException("Name of category is not contained in table categories: " + split[0]);
+						throw new IllegalArgumentException("Name of category is not contained in table 'categories': " + split[0]);
 					}
 					if (categories.size()>0) {
 						throw new IllegalArgumentException("Category name is not unique: " + split[0]);
@@ -1398,7 +1415,7 @@ public class DatabaseImportPanel {
 					}
 					else {
 						if (maps.size()==0) {
-							throw new IllegalArgumentException("Name of map is not contained in table maps: " + mapNames[m]);
+							throw new IllegalArgumentException("Name of map is not contained in table 'maps': " + mapNames[m]);
 						}
 						if (maps.size()>0) {
 							throw new IllegalArgumentException("Map name is not unique: " + mapNames[m]);
@@ -1613,14 +1630,14 @@ public class DatabaseImportPanel {
 					locationId1 = locationsMap.get(split[0]);
 				}
 				else {
-					throw new IllegalArgumentException("Name of location is not contained in table locations: " + split[0]);
+					throw new IllegalArgumentException("Name of location is not contained in table 'locations': " + split[0]);
 	
 				}
 				if (locationsMap.containsKey(split[1])) {
 					locationId2 = locationsMap.get(split[1]);
 				}
 				else {
-					throw new IllegalArgumentException("Name of location is not contained in table locations: " + split[1]);
+					throw new IllegalArgumentException("Name of location is not contained in table 'locations': " + split[1]);
 	
 				}
 				locationDistance.set("location_id1", locationId1);

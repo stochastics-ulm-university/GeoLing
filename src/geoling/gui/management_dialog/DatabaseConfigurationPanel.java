@@ -29,6 +29,8 @@ import javax.swing.event.ChangeListener;
  */
 public class DatabaseConfigurationPanel {
 
+	private final Boolean[] trueFalseAnswer = new Boolean[] {Boolean.TRUE, Boolean.FALSE};
+
 	/** The panel to which contents are added. */
 	private JPanel panel = new JPanel();
 
@@ -38,6 +40,8 @@ public class DatabaseConfigurationPanel {
 	private Border[] borders;
 	/** <code>JComboBox</code> that shows all borders. */
 	private JComboBox<String> comboBoxDefaultBorder = new JComboBox<String>();
+	/** <code>JComboBox</code> that shows the <code>useLocationAggregation</code> option. */
+	private JComboBox<Boolean> comboBoxLocationAggregation;
 
 	/** <code>ResourceBundle</code> for localization. */
 	private ResourceBundle rb;
@@ -70,6 +74,9 @@ public class DatabaseConfigurationPanel {
 						borders[i] = allBorders.get(i);
 					}
 					comboBoxDefaultBorder.setModel((new DefaultComboBoxModel<String>(borderNames)));
+					
+					// option "useLocationAggregation" may have changed
+					comboBoxLocationAggregation.setSelectedItem(ConfigurationOption.getOption("useLocationAggregation", false));
 				}
 
 			}
@@ -91,8 +98,6 @@ public class DatabaseConfigurationPanel {
 			borders[i] = allBorders.get(i);
 		}
 
-
-		final Boolean[] trueFalseAnswer = new Boolean[] {Boolean.TRUE, Boolean.FALSE};
 
 		// set layout
 		GridBagLayout gridBagLayout = new GridBagLayout();
@@ -161,7 +166,7 @@ public class DatabaseConfigurationPanel {
 		gbc_lblLocationAggregation.gridy = 3;
 		panel.add(lblLocationAggregation, gbc_lblLocationAggregation);
 
-		final JComboBox<Boolean> comboBoxLocationAggregation = new JComboBox<Boolean>(new DefaultComboBoxModel<Boolean>(trueFalseAnswer));
+		comboBoxLocationAggregation = new JComboBox<Boolean>(new DefaultComboBoxModel<Boolean>(trueFalseAnswer));
 		GridBagConstraints gbc_comboBoxLocationAggregation = new GridBagConstraints();
 		gbc_comboBoxLocationAggregation.fill = GridBagConstraints.BOTH;
 		gbc_comboBoxLocationAggregation.insets = new Insets(5, 5, 5, 5);

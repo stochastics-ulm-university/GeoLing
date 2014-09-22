@@ -36,8 +36,9 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 		
 		int returnVal = JOptionPane.showConfirmDialog(null, "The following uncaught exception occured:\n" +
 		                                              (e.getMessage() != null ? e.getMessage() : e) + "\n\n" + stackTrace +
-		                                              "\n\nDo you want to continue the application?",
-		                                              "Continue application?", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
+		                                              "\n\nDo you want to continue the application?\n\n"+
+		                                              "Tip: This error message including full stack trace can also be found in the subfolder \"logs\".",
+		                                              "Error", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
 		// terminate application
 		if (returnVal != JOptionPane.YES_OPTION) {
 			System.exit(1);
