@@ -87,10 +87,10 @@ public class LeastSquaresCrossValidation extends BandwidthEstimator {
 		BigDecimal minValueBandwidth = null;
 		int strictlyIncreasingCounter = 0;
 		for (BigDecimal bandwidth : bandwidthCandidates) {
-			// Note: we don't need to set the bandwidth of the kernel object, because we don't use it.
-			// kernel.setBandwidth(bandwidth);
-			// Least-squares-cross-validation is only implemented for the Gaussian case, which is
-			// asserted by the constructor.
+			// Note: we don't need a kernel object with the correct bandwidth
+			// (kernel.copyOfKernelWithBandwidth(bandwidth)), because we don't use it.
+			// Least-squares-cross-validation is only implemented for the Gaussian case
+			// with Euclidean/geographical distance, which is asserted by the constructor.
 			
 			final double h = bandwidth.doubleValue();
 			final Map<Variant,Double> values = Collections.synchronizedMap(new HashMap<Variant,Double>());
@@ -111,16 +111,18 @@ public class LeastSquaresCrossValidation extends BandwidthEstimator {
 						
 						if (number1 > 0) {
 							for (Location location2 : locations) {
-								int number2;
-								if (ignoreFrequencies) {
-									number2 = (int)Math.round(variantWeights.getWeight(variant, location2)*100);
-								} else {
-									number2 = variantWeights.getNumberOfVariantOccurencesAtLocation(variant, location2);
-								}
-								
-								if (number2 > 0) {
-									double d = kernel.getDistanceMeasure().getDistance(location1, location2);
-									sum += (Math.exp(-(d/h)*(d/h)/4.0)/4.0 - Math.exp(-(d/h)*(d/h)/2.0)) * number1*number2;
+								if (!location1.equals(location2)) {
+									int number2;
+									if (ignoreFrequencies) {
+										number2 = (int)Math.round(variantWeights.getWeight(variant, location2)*100);
+									} else {
+										number2 = variantWeights.getNumberOfVariantOccurencesAtLocation(variant, location2);
+									}
+									
+									if (number2 > 0) {
+										double d = kernel.getDistanceMeasure().getDistance(location1, location2);
+										sum += (Math.exp(-(d/h)*(d/h)/4.0)/4.0 - Math.exp(-(d/h)*(d/h)/2.0)) * number1*number2;
+									}
 								}
 							}
 							n += number1;
