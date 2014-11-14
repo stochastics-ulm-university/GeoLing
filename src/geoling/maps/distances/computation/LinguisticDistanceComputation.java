@@ -23,7 +23,8 @@ import org.javalite.activejdbc.LazyList;
  * 
  * @author student assistant, Institute of Stochastics, Ulm University
  * @see "S. Pickl, A. Spettl, S. Pröll, S. Elspaß, W. König and V. Schmidt,
- *       Linguistic distances in dialectometric intensity estimation. Preprint."
+ *       Linguistic distances in dialectometric intensity estimation.
+ *       Journal of Linguistic Geography 2 (2014), 25-40."
  * @see "Julius Vogelbacher, Statistische Analyse von Wortvarianten des Sprachatlas von
  *       Bayerisch-Schwaben, Universität Ulm, Diplomarbeit, Kapitel 2.5"
  */
