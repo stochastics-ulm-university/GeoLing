@@ -27,7 +27,7 @@ public class ComboBoxLevelElement {
 	public String toString() {
 		if (this.level == null) {
 			// prototype display value
-			return "Some level";
+			return "No level";
 		}
 		
 		String name = level.getString("name");

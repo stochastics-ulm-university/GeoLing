@@ -279,20 +279,30 @@ public class DatabaseBandwidthPanel {
 					public void run() {		
 
 						Database.ensureConnection();
-						final LazyList<Level> levels = Level.findAll();
+						List<Level> levels = Level.findAll();
+						if (levels.isEmpty()) {
+							// fallback to 'no level'
+							levels = new ArrayList<Level>(1);
+							levels.add(null);
+						}
+						final List<Level> levelsFinal = levels;
 						pm = new ProgressMonitor(panel, rb.getString("text_progressComputing"), "", 0, 100);
 						pm.setMillisToDecideToPopup(0);
 						pm.setMillisToPopup(0);
 
 						for (Group group : selectedGroups) {
-							LazyList<Map> maps = group.getAll(Map.class);
+							LazyList<Map> maps = (group != null) ? group.getAll(Map.class) : null;
+							if (maps == null) {
+								// no group: fallback to all maps
+								maps = Map.findAll();
+							}
 							// customize progress for the current group
 							if (pm.isCanceled()) {
 								return;
 							}
 							pm.setProgress(0);
 							pm.setMaximum(maps.size());
-							pm.setNote(group.getString("name"));
+							pm.setNote(group != null ? group.getString("name") : "");
 
 							ThreadedTodoWorker.workOnTodoList(maps, new ThreadedTodoWorker.SimpleTodoWorker<Map>() {
 								private int progress = 0;
@@ -302,8 +312,8 @@ public class DatabaseBandwidthPanel {
 
 									VariantWeights variantWeightsBase = new VariantWeightsNoLevel(map);
 
-									for (Level level : levels) {
-										VariantWeights variantWeights = new VariantWeightsWithLevel(variantWeightsBase, level);
+									for (Level level : levelsFinal) {
+										VariantWeights variantWeights = (level != null) ? new VariantWeightsWithLevel(variantWeightsBase, level) : variantWeightsBase;
 
 										for (BandwidthEstimator estimator : bandwidthEstimators) {
 											if (estimator.getDistanceMeasure() instanceof LinguisticDistance) {
@@ -358,33 +368,37 @@ public class DatabaseBandwidthPanel {
 			groups = new ArrayList<Group>();
 		}
 		
+		Object[] columnNames = {rb.getString("columnName1_tableGroup"), rb.getString("columnName2_tableGroup")};
+		Object[][] data;
+		
+		// create table contents
 		if (groups.size()==0) {
-			return new JTable();
+			data = new Object[1][columnNames.length];
+			data[0][0] = new TableGroupElement(null);
+			data[0][1] = false;
 		}
 		else {
-			Object[] columnNames = {rb.getString("columnName1_tableGroup"), rb.getString("columnName2_tableGroup")};
-			// create table contents
-			Object[][] data = new Object[groups.size()][columnNames.length];
+			data = new Object[groups.size()][columnNames.length];
 			for (int i=0; i<groups.size(); i++) {
 				data[i][0] = new TableGroupElement(groups.get(i));
 				data[i][1] = false;
 			}
-
-			DefaultTableModel model = new DefaultTableModel(data, columnNames);
-			JTable table = new JTable(model) {
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public Class<?> getColumnClass(int column) {
-					switch (column) {
-					case 0: return TableGroupElement.class;
-					case 1:	return Boolean.class;
-					default: return Object.class;                     
-					}
-				}
-			};
-			return table;
 		}
+
+		DefaultTableModel model = new DefaultTableModel(data, columnNames);
+		JTable table = new JTable(model) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Class<?> getColumnClass(int column) {
+				switch (column) {
+				case 0: return TableGroupElement.class;
+				case 1:	return Boolean.class;
+				default: return Object.class;                     
+				}
+			}
+		};
+		return table;
 	}
 
 

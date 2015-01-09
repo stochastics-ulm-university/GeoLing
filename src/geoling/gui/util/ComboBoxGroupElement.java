@@ -27,7 +27,7 @@ public class ComboBoxGroupElement {
 	public String toString() {
 		if (this.group == null) {
 			// prototype display value
-			return "Name of some group";
+			return "No group";
 		}
 		
 		String name = group.getString("name");

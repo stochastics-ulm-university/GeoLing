@@ -69,15 +69,21 @@ public class LinguisticDistanceComputation {
 	
 	/**
 	 * Computes the linguistic distance (for all levels) using the maps in the given group,
-	 * and writes the distances to the database.
+	 * and writes the distances to the database. If no levels exist, then the computation
+	 * will be done without levels.
 	 * 
 	 * @param group    the group with the maps to consider, may be <code>null</code>, then all maps are used
 	 * @param progress object for progress messages
 	 */
 	public static void computeDistances(Group group, ProgressOutput progress) {
-		LazyList<Level> levels = Level.findAll();
+		List<Level> levels = Level.findAll();
+		if (levels.isEmpty()) {
+			// fallback to 'no level'
+			levels = new ArrayList<Level>(1);
+			levels.add(null);
+		}
 		for (Level level : levels) {
-			progress.customMessage("Group and level: " + ((group == null) ? "(all maps)" : group.getString("name")) + " - " + level.getString("name"));
+			progress.customMessage("Group and level: " + ((group == null) ? "(all maps)" : group.getString("name")) + " - " + ((level == null) ? "(no level)" : level.getString("name")));
 			computeDistances(group, level, progress);
 			progress.customMessage("");
 		}
@@ -128,7 +134,7 @@ public class LinguisticDistanceComputation {
 		if (distance == null) {
 			String name = "Linguistic distance";
 			if (group == null) {
-				name += " (all groups";
+				name += " (all maps";
 			} else {
 				name += " ("+group.getString("name");
 			}

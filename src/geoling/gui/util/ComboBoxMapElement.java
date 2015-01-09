@@ -27,7 +27,7 @@ public class ComboBoxMapElement {
 	public String toString() {
 		if (this.map == null) {
 			// prototype display value
-			return "Name of some map";
+			return "No map";
 		}
 		
 		String name = map.getString("name");

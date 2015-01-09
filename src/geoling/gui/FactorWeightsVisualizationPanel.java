@@ -57,6 +57,7 @@ import java.util.ResourceBundle;
 
 
 
+
 import javax.imageio.ImageIO;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
@@ -129,7 +130,7 @@ public class FactorWeightsVisualizationPanel {
 		rb = ResourceBundle.getBundle("FactorWeightsVisualizationPanel", GeoLingGUI.LANGUAGE);
 
 		panelFactorWeightsVisualization = new JPanel();
-		tabbedPane.addTab(rb.getString("title_FactorWeightsVisualizationPanel"), null, panelFactorWeightsVisualization, selectedGroup.getString("name"));
+		tabbedPane.addTab(rb.getString("title_FactorWeightsVisualizationPanel"), null, panelFactorWeightsVisualization, (selectedGroup != null) ? selectedGroup.getString("name") : null);
 		tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1);
 
 		// define layout
@@ -154,7 +155,11 @@ public class FactorWeightsVisualizationPanel {
 		panelFactorWeightsVisualization.add(lblMap, gbc_lblMap);
 
 		JComboBox<ComboBoxMapElement> comboBoxMap = new JComboBox<ComboBoxMapElement>();
-		LazyList<Map> maps = selectedGroup.getAll(Map.class);
+		LazyList<Map> maps = (selectedGroup != null) ? selectedGroup.getAll(Map.class) : null;
+		if (maps == null) {
+			// no group: fallback to all maps
+			maps = Map.findAll();
+		}
 		ComboBoxMapElement[] mapElements = new ComboBoxMapElement[maps.size()];
 		for (int i = 0; i < maps.size(); i++) {
 			mapElements[i] = new ComboBoxMapElement(maps.get(i));
@@ -537,7 +542,11 @@ public class FactorWeightsVisualizationPanel {
 							Database.ensureConnection();
 
 							try {
-								LazyList<Map> maps  = selectedGroup.getAll(Map.class);
+								LazyList<Map> maps = (selectedGroup != null) ? selectedGroup.getAll(Map.class) : null;
+								if (maps == null) {
+									// no group: fallback to all maps
+									maps = Map.findAll();
+								}
 
 								// generate a ProgressMonitor object (window with
 								// progress bar and "cancel"-button)
@@ -545,7 +554,7 @@ public class FactorWeightsVisualizationPanel {
 
 
 								// writer for csv export
-								String groupName = selectedGroup.getString("name");
+								String groupName = (selectedGroup != null) ? selectedGroup.getString("name") : "all_maps";
 								groupName = groupName.substring(0, Math.min(groupName.length(), 20));
 								groupName = groupName.replaceAll(" ", "_").replaceAll("[\\\\/:*?\"<>|]", "");
 								BufferedWriter writer = null;

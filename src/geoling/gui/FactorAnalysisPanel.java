@@ -20,6 +20,7 @@ import geoling.maps.plot.PlotVariantMap;
 import geoling.maps.projection.MapProjection;
 import geoling.maps.projection.MercatorProjection;
 import geoling.maps.weights.VariantWeights;
+import geoling.maps.weights.VariantWeightsNoLevel;
 import geoling.maps.weights.VariantWeightsWithLevel;
 import geoling.models.Border;
 import geoling.models.Group;
@@ -380,8 +381,8 @@ public class FactorAnalysisPanel {
 			 */
 			public void actionPerformed(ActionEvent arg0) {
 
-				final Level selectedLevel = ((ComboBoxLevelElement) comboBoxLevel.getSelectedItem()).getLevel();			
-				selectedGroup = ((ComboBoxGroupElement) comboBoxGroup.getSelectedItem()).getGroup();
+				final Level selectedLevel = (comboBoxLevel.getSelectedIndex() >= 0) ? ((ComboBoxLevelElement) comboBoxLevel.getSelectedItem()).getLevel() : null;			
+				selectedGroup = (comboBoxGroup.getSelectedIndex() >= 0) ? ((ComboBoxGroupElement) comboBoxGroup.getSelectedItem()).getGroup() : null;
 				final Integer numberOfFactors;
 				if (radioButtonKaiser.isSelected()) {
 					numberOfFactors = null;
@@ -397,117 +398,122 @@ public class FactorAnalysisPanel {
 					}
 				}
 
-				if (selectedLevel != null && selectedGroup != null) {
-					Thread thread = new Thread(new Runnable() {
+				
+				Thread thread = new Thread(new Runnable() {
 
-						public void run() {
-							// database connection is missing in this worker
-							// thread...
-							Database.ensureConnection();
-							
-							ProgressMonitor pm = null;
+					public void run() {
+						// database connection is missing in this worker
+						// thread...
+						Database.ensureConnection();
+						
+						ProgressMonitor pm = null;
 
-							if (selectedLevel.equals(prevSelectedLevel) && selectedGroup.equals(prevSelectedGroup) &&
-							    ((numberOfFactors == null && prevNumberOfFactors == null) ||
-							     (numberOfFactors != null && numberOfFactors.equals(prevNumberOfFactors)))) {
-								// old objects are up-to-date
-							} else {
-								LazyList<Map> maps = selectedGroup.getAll(Map.class);
+						if ((factorAnalysis != null) &&
+						    (selectedLevel == null || selectedLevel.equals(prevSelectedLevel)) &&
+						    (selectedGroup == null || selectedGroup.equals(prevSelectedGroup)) &&
+						    ((numberOfFactors == null && prevNumberOfFactors == null) ||
+						     (numberOfFactors != null && numberOfFactors.equals(prevNumberOfFactors)))) {
+							// old objects are up-to-date
+						} else {
+							LazyList<Map> maps = (selectedGroup != null) ? selectedGroup.getAll(Map.class) : null;
+							if (maps == null) {
+								// no group: fallback to all maps
+								maps = Map.findAll();
+							}
 
-								pm = new ProgressMonitor(panelFactorAnalysis, rb.getString("text_factorAnalysisRunning"), "", 0, maps.size()*11/10);
-								pm.setNote(String.format(rb.getString("format_text_loadingData"), maps.size()));
+							pm = new ProgressMonitor(panelFactorAnalysis, rb.getString("text_factorAnalysisRunning"), "", 0, maps.size()*11/10);
+							pm.setNote(String.format(rb.getString("format_text_loadingData"), maps.size()));
 
-								ArrayList<VariantWeights> variantWeightsList = new ArrayList<VariantWeights>(maps.size());
-								int i = 0;
-								for (Map map : maps) {
-									pm.setProgress(i++);
+							ArrayList<VariantWeights> variantWeightsList = new ArrayList<VariantWeights>(maps.size());
+							int i = 0;
+							for (Map map : maps) {
+								pm.setProgress(i++);
 
-									variantWeightsList.add(new VariantWeightsWithLevel(map, selectedLevel));
-
-									if (pm.isCanceled()) {
-										return;
-									}
-								}
-
-								FactorAnalysis factorAnalysisLocal = new FactorAnalysis(variantWeightsList, numberOfFactors);
-								pm.setProgress(pm.getMaximum());
+								variantWeightsList.add((selectedLevel != null) ? new VariantWeightsWithLevel(map, selectedLevel) : new VariantWeightsNoLevel(map));
 
 								if (pm.isCanceled()) {
 									return;
 								}
-
-								pm.setProgress(pm.getMinimum());
-								pm.setNote(String.format(rb.getString("format_text_calculate"), factorAnalysisLocal.getDataSize(), factorAnalysisLocal.getVarSize()));
-
-								factorAnalysisLocal.calculateFactorLoadings(new ProgressOutput(null, pm, 1, false, 100));
-
-								if (pm.isCanceled()) {
-									return;
-								}
-
-								pm.setProgress(pm.getMinimum());
-								pm.setNote(String.format(rb.getString("format_text_visualization"), factorAnalysisLocal.getNumberOfFactors()));
-
-								factorAnalysis = factorAnalysisLocal;
-								prevSelectedLevel = selectedLevel;
-								prevSelectedGroup = selectedGroup;
-								prevNumberOfFactors = numberOfFactors;
 							}
-							
-							FactorLoadings factorLoadings = factorAnalysis.getFactorLoadingsObj();
 
-							DensityEstimation densityEstimation = new WeightPassthrough();
-							areaClassMap = new AreaClassMap(factorLoadings, densityEstimation);
-							Polytope borderPolygon = Border.getDefaultBorder().toPolygon();
-							MapProjection mapProjection = new MercatorProjection();
-							areaClassMap.buildLocationDensityCache();
-							areaClassMap.buildAreas(borderPolygon, mapProjection);
-							
-							if (pm != null) pm.setProgress(pm.getMaximum()/2);
+							FactorAnalysis factorAnalysisLocal = new FactorAnalysis(variantWeightsList, numberOfFactors);
+							pm.setProgress(pm.getMaximum());
 
-							int height = scrollPaneForLabelMap.getSize().height - 25;
-							helper = new PlotHelper(borderPolygon, mapProjection, height, 10);
-							PlotAreaClassMap plot = new PlotAreaClassMap(areaClassMap);
-							classmap = true;
-
-							variantColors = MapPanel.getUpdatedVariantColors(variantColors, plot.getDefaultAreaColors(false), areaClassMap);
-
-							BufferedImage bi = new BufferedImage(helper.getWidth(), helper.getHeight(), BufferedImage.TYPE_INT_RGB);
-							try(PlotToGraphics2D gre = new PlotToGraphics2D(helper.getWindow(), bi.createGraphics())) {
-								plot.voronoiExport(gre, helper, variantColors, hints);
+							if (pm.isCanceled()) {
+								return;
 							}
-							if (pm != null) pm.setProgress(pm.getMaximum());
 
-							iconMap = new ImageIcon(bi);
-							labelMap = new AreaClassMapLabel(iconMap, hints, areaClassMap, 1.0f);
-							ToolTipManager.sharedInstance().registerComponent(labelMap);
-							scrollPaneForLabelMap.getViewport().setView(labelMap);
+							pm.setProgress(pm.getMinimum());
+							pm.setNote(String.format(rb.getString("format_text_calculate"), factorAnalysisLocal.getDataSize(), factorAnalysisLocal.getVarSize()));
 
-							tableContentsColor = new Object[variantColors.size()][2];
-							int variantIndex = 0;
-							for (Variant variant : variantColors.keySet()) {
-								tableContentsColor[variantIndex][0] = new TableVariantElement(variant, 60);
-								tableContentsColor[variantIndex][1] = variantColors.get(variant);
-								variantIndex++;
+							factorAnalysisLocal.calculateFactorLoadings(new ProgressOutput(null, pm, 1, false, 100));
+
+							if (pm.isCanceled()) {
+								return;
 							}
-							tableFactorColor.setModel(new DefaultTableModel(tableContentsColor, new String[] { rb.getString("columnName1_tableFactorColor"),
-									rb.getString("columnName2_tableFactorColor") }) {
 
-								private static final long serialVersionUID = 1L;
+							pm.setProgress(pm.getMinimum());
+							pm.setNote(String.format(rb.getString("format_text_visualization"), factorAnalysisLocal.getNumberOfFactors()));
 
-								public boolean isCellEditable(int rowIndex, int columnIndex) {
-									return false;
-								}
-							});
-							ColorHueTableCellRenderer ctr = new ColorHueTableCellRenderer();
-							tableFactorColor.getColumnModel().getColumn(1).setCellRenderer(ctr);
-							// set slider for zoom on 100 percent
-							sliderZoom.setValue(100);
+							factorAnalysis = factorAnalysisLocal;
+							prevSelectedLevel = selectedLevel;
+							prevSelectedGroup = selectedGroup;
+							prevNumberOfFactors = numberOfFactors;
 						}
-					});
+						
+						FactorLoadings factorLoadings = factorAnalysis.getFactorLoadingsObj();
 
-					thread.start();
-				}
+						DensityEstimation densityEstimation = new WeightPassthrough();
+						areaClassMap = new AreaClassMap(factorLoadings, densityEstimation);
+						Polytope borderPolygon = Border.getDefaultBorder().toPolygon();
+						MapProjection mapProjection = new MercatorProjection();
+						areaClassMap.buildLocationDensityCache();
+						areaClassMap.buildAreas(borderPolygon, mapProjection);
+						
+						if (pm != null) pm.setProgress(pm.getMaximum()/2);
+
+						int height = scrollPaneForLabelMap.getSize().height - 25;
+						helper = new PlotHelper(borderPolygon, mapProjection, height, 10);
+						PlotAreaClassMap plot = new PlotAreaClassMap(areaClassMap);
+						classmap = true;
+
+						variantColors = MapPanel.getUpdatedVariantColors(variantColors, plot.getDefaultAreaColors(false), areaClassMap);
+
+						BufferedImage bi = new BufferedImage(helper.getWidth(), helper.getHeight(), BufferedImage.TYPE_INT_RGB);
+						try(PlotToGraphics2D gre = new PlotToGraphics2D(helper.getWindow(), bi.createGraphics())) {
+							plot.voronoiExport(gre, helper, variantColors, hints);
+						}
+						if (pm != null) pm.setProgress(pm.getMaximum());
+
+						iconMap = new ImageIcon(bi);
+						labelMap = new AreaClassMapLabel(iconMap, hints, areaClassMap, 1.0f);
+						ToolTipManager.sharedInstance().registerComponent(labelMap);
+						scrollPaneForLabelMap.getViewport().setView(labelMap);
+
+						tableContentsColor = new Object[variantColors.size()][2];
+						int variantIndex = 0;
+						for (Variant variant : variantColors.keySet()) {
+							tableContentsColor[variantIndex][0] = new TableVariantElement(variant, 60);
+							tableContentsColor[variantIndex][1] = variantColors.get(variant);
+							variantIndex++;
+						}
+						tableFactorColor.setModel(new DefaultTableModel(tableContentsColor, new String[] { rb.getString("columnName1_tableFactorColor"),
+								rb.getString("columnName2_tableFactorColor") }) {
+
+							private static final long serialVersionUID = 1L;
+
+							public boolean isCellEditable(int rowIndex, int columnIndex) {
+								return false;
+							}
+						});
+						ColorHueTableCellRenderer ctr = new ColorHueTableCellRenderer();
+						tableFactorColor.getColumnModel().getColumn(1).setCellRenderer(ctr);
+						// set slider for zoom on 100 percent
+						sliderZoom.setValue(100);
+					}
+				});
+
+				thread.start();
 			}
 		});
 		buttonDrawMap.setToolTipText(rb.getString("tooltip_buttonDrawMap"));
@@ -656,7 +662,7 @@ public class FactorAnalysisPanel {
 					return;
 				}
 				if (classmap) {
-					String groupName = selectedGroup.getString("name");
+					String groupName = (selectedGroup != null) ? selectedGroup.getString("name") : "all_maps";
 					groupName = groupName.substring(0, Math.min(groupName.length(), 20));
 					groupName = groupName.replaceAll(" ", "_").replaceAll("[\\\\/:*?\"<>|]", "");
 
@@ -689,7 +695,7 @@ public class FactorAnalysisPanel {
 						}
 					}
 				} else {
-					String groupName = selectedGroup.getString("name");
+					String groupName = (selectedGroup != null) ? selectedGroup.getString("name") : "all_maps";
 					groupName = groupName.substring(0, Math.min(groupName.length(), 20));
 					groupName = groupName + "_" + selectedVariant.getString("name");
 					groupName = groupName.replaceAll(" ", "_").replaceAll("[\\\\/:*?\"<>|]", "");
@@ -755,7 +761,7 @@ public class FactorAnalysisPanel {
 				if (factorAnalysis == null) {
 					return;
 				}
-				String groupName = selectedGroup.getString("name");
+				String groupName = (selectedGroup != null) ? selectedGroup.getString("name") : "all_maps";
 				groupName = groupName.substring(0, Math.min(groupName.length(), 20));
 				groupName = groupName.replaceAll(" ", "_").replaceAll("[\\\\/:*?\"<>|]", "");
 

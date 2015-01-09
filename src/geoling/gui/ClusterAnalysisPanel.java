@@ -22,6 +22,7 @@ import geoling.maps.util.BuilderMethods;
 import geoling.maps.util.MapBorder;
 import geoling.maps.util.RectangularGrid;
 import geoling.maps.weights.VariantWeights;
+import geoling.maps.weights.VariantWeightsNoLevel;
 import geoling.maps.weights.VariantWeightsWithLevel;
 import geoling.models.Distance;
 import geoling.models.Group;
@@ -328,7 +329,7 @@ public class ClusterAnalysisPanel {
 
 								columnNames = new String[] { rb.getString("resulting_Column_Name_Cluster"),
 										rb.getString("resulting_Column_Name_Name") };
-								tableData = new Object[(selectedGroup.getAll(Map.class)).size()][2];
+								tableData = new Object[areaClassMaps.size()][2];
 								tableAreaClassMaps = new ArrayList<AreaClassMap>();
 
 								int k = 0;
@@ -397,7 +398,7 @@ public class ClusterAnalysisPanel {
 								columnNames = new String[] { rb.getString("resulting_Column_Name_Cluster"),
 										rb.getString("resulting_Column_Name_Name"),
 										rb.getString("resulting_Column_Name_Prob") };
-								tableData = new Object[result.getClusterCount() * (selectedGroup.getAll(Map.class)).size()][3];
+								tableData = new Object[result.getClusterCount() * areaClassMaps.size()][3];
 								tableAreaClassMaps = new ArrayList<AreaClassMap>();
 
 								int k = 0;
@@ -455,7 +456,7 @@ public class ClusterAnalysisPanel {
 
 								columnNames = new String[] { rb.getString("resulting_Column_Name_Cluster"),
 										rb.getString("resulting_Column_Name_Name")};
-								tableData = new Object[result.getClusterCount() * (selectedGroup.getAll(Map.class)).size()][2];
+								tableData = new Object[result.getClusterCount() * areaClassMaps.size()][2];
 								tableAreaClassMaps = new ArrayList<AreaClassMap>();
 
 								int k = 0;
@@ -599,8 +600,14 @@ public class ClusterAnalysisPanel {
 							writer.XML.writeStartElement("data");
 
 							writer.XML.writeStartElement("maps");
-							writer.XML.writeAttribute("group_id", selectedGroup.getId().toString());
-							List<Map> maps = selectedGroup.getAll(Map.class);
+							List<Map> maps;
+							if (selectedGroup != null) {
+								writer.XML.writeAttribute("group_id", selectedGroup.getId().toString());
+								maps = selectedGroup.getAll(Map.class);
+							} else {
+								// no group: fallback to all maps
+								maps = Map.findAll();
+							}
 							for (Map map : maps) {
 								writer.XML.writeStartElement("map");
 								writer.XML.writeAttribute("id", map.getId().toString());
@@ -1519,7 +1526,11 @@ public class ClusterAnalysisPanel {
 	 * @return The described Array List of area Class Maps
 	 */
 	private ArrayList<AreaClassMap> createAreaClassMaps() {
-		List<Map> maps = selectedGroup.getAll(Map.class);
+		List<Map> maps = (selectedGroup != null) ? selectedGroup.getAll(Map.class) : null;
+		if (maps == null) {
+			// no group: fallback to all maps
+			maps = Map.findAll();
+		}
 		final ArrayList<AreaClassMap> result = new ArrayList<AreaClassMap>();
 
 		pm.setProgress(0);
@@ -1533,7 +1544,7 @@ public class ClusterAnalysisPanel {
 			if (pm.isCanceled()) {
 				return null;
 			}
-			VariantWeights variantWeights = new VariantWeightsWithLevel(maps.get(i), selectedLevel);
+			VariantWeights variantWeights = (selectedLevel != null) ? new VariantWeightsWithLevel(maps.get(i), selectedLevel) : new VariantWeightsNoLevel(maps.get(i));
 
 			BigDecimal bandwidth = ComputeBandwidths.findOrComputeAndSaveBandwidth(variantWeights, estimator, false, null);
 			DensityEstimation densityEstimation = new KernelDensityEstimation(selectedKernel.copyOfKernelWithBandwidth(bandwidth));

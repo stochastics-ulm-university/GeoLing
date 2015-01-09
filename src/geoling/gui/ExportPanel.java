@@ -24,6 +24,7 @@ import geoling.maps.projection.MapProjection;
 import geoling.maps.projection.MercatorProjection;
 import geoling.maps.util.BuilderMethods;
 import geoling.maps.weights.VariantWeights;
+import geoling.maps.weights.VariantWeightsNoLevel;
 import geoling.maps.weights.VariantWeightsWithLevel;
 import geoling.models.Bandwidth;
 import geoling.models.Border;
@@ -347,8 +348,12 @@ public class ExportPanel {
 					return;
 				}
 
-				final Group group = ((ComboBoxGroupElement) comboBoxGroup.getSelectedItem()).getGroup();
-				LazyList<Map> mapsLazy = group.getAll(Map.class);
+				final Group group = (comboBoxGroup.getSelectedIndex() >= 0) ? ((ComboBoxGroupElement) comboBoxGroup.getSelectedItem()).getGroup() : null;
+				LazyList<Map> mapsLazy = (group != null) ? group.getAll(Map.class) : null;
+				if (mapsLazy == null) {
+					// no group: fallback to all maps
+					mapsLazy = Map.findAll();
+				}
 				final ArrayList<Map> maps = new ArrayList<Map>(mapsLazy);
 
 				try {
@@ -361,7 +366,7 @@ public class ExportPanel {
 					// cache global values from this panel, user may change them in
 					// the GUI while map generation is still running
 					final String kernel_identificationCached = kernel_identification;
-					final Level level = ((ComboBoxLevelElement) comboBoxLevel.getSelectedItem()).getLevel();
+					final Level level = (comboBoxLevel.getSelectedIndex() >= 0) ? ((ComboBoxLevelElement) comboBoxLevel.getSelectedItem()).getLevel() : null;
 					final boolean gridMapTypeCached = buttonGroupMapTypes.getSelection().getActionCommand().equals("Voronoi") ? false : true;
 					final String exportFolderCached = exportFolder;
 
@@ -387,7 +392,7 @@ public class ExportPanel {
 								ProgressMonitor pm = new ProgressMonitor(panelExport, rb.getString("text_exportRunning"), "", 0, maps.size());
 
 								// writer for csv export
-								String groupName = group.getString("name");
+								String groupName = (group != null) ? group.getString("name") : "all_maps";
 								groupName = groupName.substring(0, Math.min(groupName.length(), 20));
 								groupName = groupName.replaceAll(" ", "_").replaceAll("[\\\\/:*?\"<>|]", "");
 								BufferedWriter writer = null;
@@ -406,7 +411,7 @@ public class ExportPanel {
 											return;
 										}
 
-										VariantWeights variantWeights = new VariantWeightsWithLevel(map, level);
+										VariantWeights variantWeights = (level != null) ? new VariantWeightsWithLevel(map, level) : new VariantWeightsNoLevel(map);
 										BigDecimal selectedBandwidth = Bandwidth.findNumberByIdentificationObj(variantWeights, estimator);
 
 										if (pm.isCanceled()) {

@@ -112,7 +112,7 @@ public class DatabaseDistancePanel {
 							public void run() {
 								Database.ensureConnection();
 								
-								ProgressMonitor monitor = new ProgressMonitor(panel, group.getString("name"), "", 0, 100);
+								ProgressMonitor monitor = new ProgressMonitor(panel, (group != null) ? group.getString("name") : "No group (all maps)", "", 0, 100);
 								ProgressOutput progress = new ProgressOutput(null, monitor, 1, true, 100);
 								LinguisticDistanceComputation.computeDistances(group, progress);
 							}
@@ -142,37 +142,43 @@ public class DatabaseDistancePanel {
 			groups = new ArrayList<Group>();
 		}
 		
+		Object[] columnNames = {rb.getString("columnName1_table"), rb.getString("columnName2_table"), rb.getString("columnName3_table"), rb.getString("columnName4_table")};
+		Object[][] data;
+		
+		// create table contents
 		if (groups.size()==0) {
-			return new JTable();
+			data = new Object[1][columnNames.length];
+			data[0][0] = "No group (all maps)";
+			data[0][1] = ""; // no ID
+			data[0][2] = Map.count();
+			data[0][3] = false;
 		}
 		else {
-			Object[] columnNames = {rb.getString("columnName1_table"), rb.getString("columnName2_table"), rb.getString("columnName3_table"), rb.getString("columnName4_table")};
-			// create table contents
-			Object[][] data = new Object[groups.size()][columnNames.length];
+			data = new Object[groups.size()][columnNames.length];
 			for (int i=0; i<groups.size(); i++) {
 				data[i][0] = groups.get(i).getString("name");
 				data[i][1] = groups.get(i).getId();
 				data[i][2] = groups.get(i).getAll(Map.class).size();
 				data[i][3] = false;
 			}
-
-			DefaultTableModel model = new DefaultTableModel(data, columnNames);
-			JTable table = new JTable(model) {
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public Class<?> getColumnClass(int column) {
-					switch (column) {
-					case 0: return String.class;
-					case 1: return Object.class;
-					case 2: return Integer.class;
-					case 3:	return Boolean.class;
-					default: return Object.class;                     
-					}
-				}
-			};
-			return table;
 		}
+		
+		DefaultTableModel model = new DefaultTableModel(data, columnNames);
+		JTable table = new JTable(model) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Class<?> getColumnClass(int column) {
+				switch (column) {
+				case 0: return String.class;
+				case 1: return Object.class;
+				case 2: return Integer.class;
+				case 3:	return Boolean.class;
+				default: return Object.class;                     
+				}
+			}
+		};
+		return table;
 	}
 
 }

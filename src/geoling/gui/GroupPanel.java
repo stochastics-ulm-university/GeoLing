@@ -278,7 +278,7 @@ public class GroupPanel {
 			 * @return groupId is set and new tab is added to tabbedPane
 			 */
 			public void mouseClicked(MouseEvent arg0) {
-				selectedGroup = groups.get(tableGroup.getSelectedRow());
+				selectedGroup = (tableGroup.getSelectedRow() >= 0) ? groups.get(tableGroup.getSelectedRow()) : null;
 				if (selectedGroup != null) {
 					// listGroupsMaps aktualisieren
 					LazyList<GroupsMaps> gms = GroupsMaps.find("group_id = ?", selectedGroup.getId());

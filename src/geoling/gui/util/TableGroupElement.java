@@ -25,7 +25,7 @@ public class TableGroupElement {
 	}
 	
 	public String toString() {
-		String name = group.getString("name");
+		String name = (group != null) ? group.getString("name") : "No group (all maps)";
 		if (name.length() > 40) {
 			return name.substring(0, 40) + "...";
 		} else {
