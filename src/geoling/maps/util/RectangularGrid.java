@@ -118,6 +118,8 @@ public class RectangularGrid {
 						partiallyContained = (borderIntersection.intersect(gridRect, null) != null);
 					} catch (MapBorderIntersection.IntersectionConsistsOfSeveralPolygons e) {
 						partiallyContained = true;
+					} catch (RuntimeException e) {
+						// numerical issues? ignore
 					}
 					if (partiallyContained) {
 						GridPoint gridPoint = new GridPoint(new LatLong(latLong[0], latLong[1]), gridRect);
