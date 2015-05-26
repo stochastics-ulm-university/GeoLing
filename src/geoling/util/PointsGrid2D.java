@@ -315,6 +315,17 @@ public class PointsGrid2D<E> {
 		// start the loop at the grid element where the original point is contained, then
 		// increase the level of grid element neighbours to search
 		int level = 0;
+		// if the original point is outside the grid, then choose the initial level appropriately
+		if (!this.validGridIndex(pointGridCoord[0], pointGridCoord[1])) {
+			for (int i = 0; i < 2; i++) {
+				if (pointGridCoord[i] < 0) {
+					level = Math.max(level, -pointGridCoord[i]);
+				}
+				if (pointGridCoord[i] >= this.size[i]) {
+					level = Math.max(level, pointGridCoord[i]-this.size[i]+1);
+				}
+			}
+		}
 		while (true) {
 			boolean somethingDone = false;
 			
