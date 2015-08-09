@@ -59,3 +59,10 @@ You can start GeoLing by double clicking "start-geoling-windows.vbs"
 (Windows) or executing "start-geoling-linux.sh" (Linux). Have a look at
 the supplied documentation file "user_guide.pdf" for more information on
 how to use GeoLing.
+
+
+More info
+---------
+
+* http://www.geoling.net/
+* https://github.com/stochastics-ulm-university/GeoLing
