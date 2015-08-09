@@ -47,8 +47,8 @@ An up-to-date Java runtime environment is recommended, at least Java 7
 is required. You can obtain the latest version of Java at
 <https://www.java.com/download>.
 Note that at least 2 GB RAM have to be installed for execution of
-GeoLing. Depending on the data and analyses, more memory may be required
-- which then also implies the need for a 64-bit operating system and
+GeoLing. Depending on the data and analyses, more memory may be required -
+which then also implies the need for a 64-bit operating system and
 64-bit Java runtime.
 
 

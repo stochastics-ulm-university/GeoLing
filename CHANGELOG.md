@@ -1,10 +1,5 @@
-GeoLing - a statistical software package for geolinguistic data
-===============================================================
+## 1.0 (2014-09-22)
 
-Changelog
----------
-
-Version 1.0 (2014-09-22)
 - Data import: better error messages.
 - Data import: set configuration option "useLocationAggregation"
   automatically when importing locations where the same geographical
@@ -12,7 +7,8 @@ Version 1.0 (2014-09-22)
 - Included German translation of user guide.
 - Some small improvements.
 
-Version 1.0 RC2 (2014-08-16)
+## 1.0 RC2 (2014-08-16)
+
 - Batch script for starting GeoLing using Windows: try to detect
   Java even if "javaw.exe" is not found in the system paths. For
   example, a 32-bit Java runtime is now detected on a 64-bit Windows.
@@ -22,5 +18,6 @@ Version 1.0 RC2 (2014-08-16)
   log file in this directory.
 - Some small improvements.
 
-Version 1.0 RC1 (2014-08-13)
+## 1.0 RC1 (2014-08-13)
+
 - Initial release.
