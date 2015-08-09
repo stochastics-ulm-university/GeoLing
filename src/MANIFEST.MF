@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Class-Path: .
+  geoling-gui-language.jar
+  jars/Jama-1.0.3.jar
+  jars/quickhull3d.jar
+  jars/guava-16.0.jar
+  jars/sqlite-jdbc-3.7.15-SNAPSHOT-2.jar
+  jars/sqlite-connection-pool_v1.1.0.jar
+  jars/mysql-connector-java-5.1.28-bin.jar
+  jars/javassist.jar
+  jars/javalite-common-1.4.9.jar
+  jars/activejdbc-instrumentation-1.4.9_fix2.jar
+  jars/activejdbc-1.4.9_fix2.jar
+  jars/slf4j-nop-1.6.2.jar
+  jars/slf4j-api-1.6.2.jar
+Main-Class: geoling.gui.GeoLingGUI
