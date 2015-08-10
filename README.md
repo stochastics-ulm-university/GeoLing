@@ -55,10 +55,16 @@ which then also implies the need for a 64-bit operating system and
 Usage of GeoLing
 ----------------
 
+*Official binary release:*
 You can start GeoLing by double clicking "start-geoling-windows.vbs"
 (Windows) or executing "start-geoling-linux.sh" (Linux). Have a look at
 the supplied documentation file "user_guide.pdf" for more information on
 how to use GeoLing.
+
+*Source code release:*
+The source code is supplied in the folder "src" and it contains Javadoc
+comments. As a first step, have a look at the "package-info.java" file in
+the "src/geoling" directory.
 
 
 More info
