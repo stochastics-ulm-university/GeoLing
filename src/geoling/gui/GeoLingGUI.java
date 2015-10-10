@@ -804,28 +804,9 @@ public class GeoLingGUI extends JFrame {
 		});
 		
 		
-//		JButton buttonOpenTesting = new JButton(rb.getString("text_buttonOpenTesting"));
-//		GridBagConstraints gbc_buttonOpenTesting = new GridBagConstraints();
-//		gbc_buttonOpenTesting.insets = new Insets(0, 0, 5, 5);
-//		gbc_buttonOpenTesting.fill = GridBagConstraints.BOTH;
-//		gbc_buttonOpenTesting.gridx = 1;
-//		gbc_buttonOpenTesting.gridy = 4;
-//		panelCategory.add(buttonOpenTesting, gbc_buttonOpenTesting);
-//		buttonOpenTesting.addActionListener(new ActionListener() {
-//			/** Open tab for testing. */
-//			public void actionPerformed(ActionEvent arg0) {
-//				new TestingPanel(tabbedPane, outputfolder);
-//			}
-//		});
-//		buttonOpenTesting.setEnabled(false);
-
 		new GroupPanel(tabbedPane, treeCategory.getModel());
 
 		new ExportPanel(tabbedPane, outputfolder);
-
-
-		
-
 	}
 
 	
