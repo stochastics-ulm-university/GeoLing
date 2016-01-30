@@ -4,8 +4,8 @@ Class-Path: .
   jars/Jama-1.0.3.jar
   jars/quickhull3d.jar
   jars/guava-16.0.jar
-  jars/sqlite-jdbc-3.7.15-SNAPSHOT-2.jar
-  jars/sqlite-connection-pool_v1.1.0.jar
+  jars/sqlite-jdbc-3.8.11.2.jar
+  jars/sqlite-connection-pool_v1.2.0.jar
   jars/mysql-connector-java-5.1.28-bin.jar
   jars/javassist.jar
   jars/javalite-common-1.4.9.jar
