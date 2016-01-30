@@ -16,7 +16,7 @@ import geoling.util.geom.Point3D;
  * <code>O(n log(n))</code> complexity, works with double precision numbers, is fairly
  * robust with respect to degenerate situations, and allows the merging of co-planar faces.
  * 
- * @author Aaron Spettl
+ * @author Aaron Spettl, Institute of Stochastics, Ulm University
  * @see "Barber, C. Bradford; Dobkin, David P.; Huhdanpaa, Hannu (1996),
  *       The quickhull algorithm for convex hulls,
  *       ACM Transactions on Mathematical Software 22 (4): 469-483,
