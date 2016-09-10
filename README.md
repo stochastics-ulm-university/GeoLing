@@ -64,7 +64,8 @@ how to use GeoLing.
 *Source code release:*
 The source code is supplied in the folder "src" and it contains Javadoc
 comments. As a first step, have a look at the "package-info.java" file in
-the "src/geoling" directory.
+the "src/geoling" directory. You can build the executable JAR file using
+the build tool Ant.
 
 
 More info

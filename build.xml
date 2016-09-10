@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="GeoLing" default="clean" basedir=".">
+
+    <path id="compile_classpath">
+        <pathelement location="build"/>
+        <fileset dir="jars">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <target name="clean">
+        <delete dir="build" failonerror="true"/>
+        <delete dir="dist" failonerror="true"/>
+    </target>
+
+    <target name="compile" depends="clean">
+        <mkdir dir="build"/>
+        <javac srcdir="src" destdir="build" debug="on" optimize="off" deprecation="off" includeantruntime="false">
+            <classpath refid="compile_classpath"/>
+        </javac>
+    </target>
+
+    <target name="instrument" depends="compile">
+        <java classname="org.javalite.instrumentation.Main">
+            <sysproperty key="outputDirectory" value="build"/>
+            <classpath refid="compile_classpath"/>
+        </java>
+    </target>
+
+    <target name="package" depends="instrument">
+        <mkdir dir="dist"/>
+        <jar destfile="dist/geoling.jar" manifest="src/MANIFEST.MF" basedir="build"/>
+        <zip destfile="dist/geoling-src.zip" basedir="src"/>
+    </target>
+
+</project>
